@@ -1,7 +1,7 @@
 <script>
 // import bellLogo from './bell.png';
 function handleClick() {
-  window.location.href = "https://dev-bellbusiness.pantheonsite.io";
+  window.location.href = "https://bell-alliant.vercel.app";
 }
 
 </script>
