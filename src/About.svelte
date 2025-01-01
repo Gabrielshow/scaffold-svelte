@@ -1,5 +1,4 @@
 <script>
-  // You can add any logic for Page2 if needed
 </script>
 
 <style>
