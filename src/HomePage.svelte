@@ -53,9 +53,9 @@ import { Link } from 'svelte-routing';
     </div>
     <h1 class="black">Your e-bill is Ready for review</h1>
     <Link to="/page">
-      <button class="redirect">Go to Page 1</button>
+      <button class="redirect">Click Here to Continue</button>
     </Link>
-    <Link to="/about">
+    <!-- <Link to="/about">
       <button class="redirect">Go to Page 2</button>
-    </Link>
+    </Link> -->
 </div>
