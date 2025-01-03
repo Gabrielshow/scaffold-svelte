@@ -131,7 +131,7 @@
 }
 
 .container {
-  background-image: url('@/assets/Bell.jpg');
+  background-image: url('/Bell.jpg');
   background-size: cover;
   background-repeat: no-repeat;
   /* Prevent repeating background image */
@@ -352,7 +352,7 @@
 <div class="padding-div">
 <div class="div">
   <div class="group">
-      <img src="@/assets/image.png" class="logo" alt="bell-logo"/>
+      <img src="/image.png" class="logo" alt="bell-logo"/>
     <div class="separator"></div>
     <div class="column">
       <p>Business</p>
